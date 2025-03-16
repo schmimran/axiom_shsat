@@ -1,11 +1,3 @@
-//
-//  SHSAT_PrepperApp.swift
-//  axiom_shsat
-//
-//  Created by Imran Ahmed on 3/16/25.
-//
-
-
 import SwiftUI
 import SwiftData
 

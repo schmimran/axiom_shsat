@@ -1,5 +1,5 @@
 //
-//  SessionType.swift
+//  TestSession.swift
 //  axiom_shsat
 //
 //  Created by Imran Ahmed on 3/16/25.
