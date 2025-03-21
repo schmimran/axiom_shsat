@@ -1,6 +1,83 @@
 import Foundation
 import SwiftData
-import TabularData
+
+// Use custom CSV parsing since TabularData is not available on all platforms
+typealias CSVReadingOptions = Dictionary<String, Any>
+
+class DataFrame {
+    var rows: [CSVRow] = []
+    
+    init(csvData: Data, options: CSVReadingOptions) throws {
+        guard let csvString = String(data: csvData, encoding: .utf8) else {
+            throw QuestionError.invalidData
+        }
+        
+        let lines = csvString.components(separatedBy: .newlines)
+        guard !lines.isEmpty else { return }
+        
+        let hasHeader = options["hasHeaderRow"] as? Bool ?? true
+        let usesQuotes = options["usesQuoting"] as? Bool ?? true
+        
+        // Parse header
+        var headers: [String] = []
+        let startIndex = hasHeader ? 1 : 0
+        
+        if hasHeader {
+            headers = parseCSVLine(lines[0], usesQuotes: usesQuotes)
+        }
+        
+        // Parse data rows
+        for i in startIndex..<lines.count {
+            let line = lines[i]
+            if line.isEmpty && options["ignoresEmptyLines"] as? Bool ?? true {
+                continue
+            }
+            
+            let values = parseCSVLine(line, usesQuotes: usesQuotes)
+            let row = CSVRow(values: values, headers: headers)
+            rows.append(row)
+        }
+    }
+    
+    private func parseCSVLine(_ line: String, usesQuotes: Bool) -> [String] {
+        var result: [String] = []
+        var currentValue = ""
+        var insideQuotes = false
+        
+        for char in line {
+            if char == "\"" && usesQuotes {
+                insideQuotes.toggle()
+            } else if char == "," && !insideQuotes {
+                result.append(currentValue)
+                currentValue = ""
+            } else {
+                currentValue.append(char)
+            }
+        }
+        
+        // Add the last value
+        result.append(currentValue)
+        
+        return result
+    }
+}
+
+class CSVRow {
+    private var values: [String]
+    private var headers: [String]
+    
+    init(values: [String], headers: [String]) {
+        self.values = values
+        self.headers = headers
+    }
+    
+    subscript(_ column: String, type: String.Type) -> String? {
+        guard let index = headers.firstIndex(of: column), index < values.count else {
+            return nil
+        }
+        return values[index]
+    }
+}
 
 class QuestionService {
     let modelContext: ModelContext
@@ -22,7 +99,7 @@ class QuestionService {
     // Import questions from an external CSV file (Data)
     func importQuestionsFromCSV(data: Data) async throws -> Int {
         do {
-            let options = CSVReadingOptions(hasHeaderRow: true, ignoresEmptyLines: true, usesQuoting: true)
+            let options: CSVReadingOptions = ["hasHeaderRow": true, "ignoresEmptyLines": true, "usesQuoting": true]
             let dataFrame = try DataFrame(csvData: data, options: options)
             
             var importedCount = 0
@@ -86,7 +163,7 @@ class QuestionService {
         
         if !weakTopics.isEmpty {
             // Prioritize questions from weak topics
-            let descriptor = FetchDescriptor<Question>(
+            var descriptor = FetchDescriptor<Question>(
                 predicate: #Predicate<Question> { weakTopics.contains($0.topic) }
             )
             descriptor.sortBy = [SortDescriptor(\.lastAttempted, order: .forward)]
@@ -97,7 +174,7 @@ class QuestionService {
         
         // If we don't have enough questions from weak topics, add more questions
         if questions.count < count {
-            let descriptor = FetchDescriptor<Question>()
+            var descriptor = FetchDescriptor<Question>()
             descriptor.sortBy = [SortDescriptor(\.lastAttempted, order: .forward)]
             descriptor.fetchLimit = count - questions.count
             

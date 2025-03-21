@@ -18,9 +18,9 @@ struct TestSessionView: View {
     @State private var showingConfirmation = false
     @State private var showingResults = false
     
-    init(topic: String?, difficulty: String?, questionCount: Int = 10) {
+    init(topic: String?, difficulty: String?, questionCount: Int = 10, environment: AppEnvironment) {
         _viewModel = StateObject(wrappedValue: {
-            let vm = TestSessionViewModel(modelContext: ModelContainer.shared.mainContext)
+            let vm = TestSessionViewModel(environment: environment)
             
             // We'll start the session asynchronously when the view appears
             vm.topic = topic
@@ -361,56 +361,10 @@ struct TestSessionView: View {
     }
 }
 
-// Extension to TestSessionViewModel to add properties needed by this view
-extension TestSessionViewModel {
-    var topic: String? {
-        get { _topic }
-        set { _topic = newValue }
-    }
-    
-    var difficulty: String? {
-        get { _difficulty }
-        set { _difficulty = newValue }
-    }
-    
-    var questionCount: Int {
-        get { _questionCount }
-        set { _questionCount = newValue }
-    }
-    
-    // Private backing properties
-    private var _topic: String?
-    private var _difficulty: String?
-    private var _questionCount: Int = 10
-    
-    // Add functionality to complete session
-    func completeSession() {
-        session?.complete()
-        isCompleted = true
-    }
-}
-
-// Shared ModelContainer
-extension ModelContainer {
-    static var shared: ModelContainer = {
-        let schema = Schema([
-            UserProfile.self,
-            Question.self,
-            TestSession.self,
-            QuestionResponse.self,
-            TopicProgress.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-}
 
 #Preview {
-    TestSessionView(topic: "algebra", difficulty: "medium", questionCount: 5)
-        .environmentObject(AuthViewModel(modelContext: ModelContainer.shared.mainContext))
+    let environment = AppEnvironment.shared
+    TestSessionView(topic: "algebra", difficulty: "medium", questionCount: 5, environment: environment)
+        .environmentObject(AuthViewModel(environment: environment))
+        .modelContainer(environment.modelContainer)
 }

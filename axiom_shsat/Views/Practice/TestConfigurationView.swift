@@ -192,19 +192,14 @@ struct TestConfigurationView: View {
 }
 
 #Preview {
-    let modelContainer = try! ModelContainer(for: [
-        UserProfile.self,
-        Question.self,
-        TestSession.self,
-        QuestionResponse.self,
-        TopicProgress.self
-    ])
+    let environment = AppEnvironment.shared
     
     let viewModel = HomeViewModel(
-        modelContext: modelContainer.mainContext,
+        environment: environment,
         userId: UUID()
     )
     
-    return TestConfigurationView(viewModel: viewModel)
-        .environmentObject(AuthViewModel(modelContext: modelContainer.mainContext))
+    TestConfigurationView(viewModel: viewModel)
+        .environmentObject(AuthViewModel(environment: environment))
+        .modelContainer(environment.modelContainer)
 }

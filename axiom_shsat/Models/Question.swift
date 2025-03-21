@@ -25,7 +25,7 @@ final class Question {
     var timesAttempted: Int
     var timesCorrect: Int
     
-    @Relationship(deleteRule: .cascade, inverse: \QuestionResponse.question)
+    @Relationship(deleteRule: .cascade)
     var responses: [QuestionResponse] = []
     
     init(

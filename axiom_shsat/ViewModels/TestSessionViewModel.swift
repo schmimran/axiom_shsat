@@ -4,6 +4,7 @@ import Combine
 
 @MainActor
 class TestSessionViewModel: ObservableObject {
+    // Session state properties
     @Published var currentQuestionIndex = 0
     @Published var questions: [Question] = []
     @Published var selectedAnswer: String?
@@ -15,11 +16,17 @@ class TestSessionViewModel: ObservableObject {
     @Published var responses: [QuestionResponse] = []
     @Published var showExplanation = false
     
-    private let modelContext: ModelContext
+    // Configuration properties
+    @Published var topic: String?
+    @Published var difficulty: String?
+    @Published var questionCount: Int = 10
+    
+    private let environment: AppEnvironment
+    private var modelContext: ModelContext { environment.modelContext }
     private var cancellables = Set<AnyCancellable>()
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(environment: AppEnvironment) {
+        self.environment = environment
     }
     
     func startNewSession(
@@ -215,7 +222,7 @@ class TestSessionViewModel: ObservableObject {
         return currentQuestionIndex == questions.count - 1
     }
     
-    var questionCount: Int {
+    var totalQuestionCount: Int {
         return questions.count
     }
     

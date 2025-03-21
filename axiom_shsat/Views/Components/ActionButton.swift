@@ -3,7 +3,7 @@ import SwiftUI
 struct ActionButton: View {
     // MARK: - Properties
     
-    enum ButtonStyle {
+    enum ButtonStyle: Equatable {
         case primary
         case secondary
         case success
@@ -195,7 +195,7 @@ struct ActionButton: View {
     private var loadingContent: some View {
         HStack(spacing: 8) {
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: foregroundColor))
+                .tint(foregroundColor)
                 .scaleEffect(0.8)
             
             Text("Loading...")
@@ -355,7 +355,7 @@ struct IconButton: View {
             ZStack {
                 if isLoading {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: foregroundColor))
+                        .tint(foregroundColor)
                 } else {
                     Image(systemName: icon)
                         .font(.system(size: size / 2.5))
@@ -450,7 +450,7 @@ struct GradientButton: View {
                 if isLoading {
                     HStack(spacing: 8) {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .tint(.white)
                             .scaleEffect(0.8)
                         
                         Text("Loading...")
@@ -481,7 +481,7 @@ struct GradientButton: View {
             .foregroundColor(.white)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(isDisabled ? Color(.systemGray4) : gradient)
+                    .fill(isDisabled ? AnyShapeStyle(Color(.systemGray4)) : AnyShapeStyle(gradient))
             )
         }
         .disabled(isDisabled || isLoading)

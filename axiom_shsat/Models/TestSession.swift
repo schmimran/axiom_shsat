@@ -29,10 +29,10 @@ final class TestSession {
     var difficulty: String?
     var duration: TimeInterval?
     
-    @Relationship(deleteRule: .nullify, inverse: \UserProfile.sessions)
+    @Relationship(deleteRule: .nullify)
     var user: UserProfile?
     
-    @Relationship(deleteRule: .cascade, inverse: \QuestionResponse.session)
+    @Relationship(deleteRule: .cascade)
     var responses: [QuestionResponse] = []
     
     init(
@@ -79,8 +79,8 @@ final class TestSession {
         endTime = Date()
         completed = true
         
-        if let startTime = startTime, let endTime = endTime {
-            duration = endTime.timeIntervalSince(startTime)
+        if let endTimeValue = endTime {
+            duration = endTimeValue.timeIntervalSince(startTime)
         }
         
         // Update user statistics

@@ -165,6 +165,7 @@ struct FeatureRow: View {
 }
 
 #Preview {
-    AuthenticationView()
-        .environmentObject(AuthViewModel(modelContext: try! ModelContainer(for: [UserProfile.self]).mainContext))
+    let environment = AppEnvironment.shared
+    return AuthenticationView()
+        .environmentObject(AuthViewModel(environment: environment))
 }

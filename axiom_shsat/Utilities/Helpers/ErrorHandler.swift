@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 /// Centralized error handling utility for the app
-class ErrorHandler {
+class ErrorHandler : ObservableObject {
     /// Shared instance for app-wide error handling
     static let shared = ErrorHandler()
     
@@ -124,7 +124,7 @@ class ErrorHandler {
 // MARK: - App Error Types
 
 /// Structured error type for app-specific errors
-enum AppError: Error {
+enum AppError: Error, Equatable {
     /// Authentication errors
     case authentication(message: String)
     
@@ -157,6 +157,31 @@ enum AppError: Error {
         line: Int = #line,
         function: String = #function
     )
+    
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
+        switch (lhs, rhs) {
+        case (.authentication(let lhsMsg), .authentication(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.network(let lhsMsg), .network(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.database(let lhsMsg), .database(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.validation(let lhsMsg), .validation(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.businessLogic(let lhsMsg), .businessLogic(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.userInput(let lhsMsg), .userInput(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.resource(let lhsMsg), .resource(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.permission(let lhsMsg), .permission(let rhsMsg)):
+            return lhsMsg == rhsMsg
+        case (.systemError(_, let lhsMsg, _, _, _), .systemError(_, let rhsMsg, _, _, _)):
+            return lhsMsg == rhsMsg
+        default:
+            return false
+        }
+    }
 }
 
 extension AppError: LocalizedError {

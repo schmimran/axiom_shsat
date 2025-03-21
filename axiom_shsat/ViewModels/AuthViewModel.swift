@@ -15,11 +15,12 @@ class AuthViewModel: ObservableObject {
     @Published var authState: AuthState = .signedOut
     @Published var currentUser: UserProfile?
     
-    private let modelContext: ModelContext
+    private let environment: AppEnvironment
+    private var modelContext: ModelContext { environment.modelContext }
     private var cancellables = Set<AnyCancellable>()
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(environment: AppEnvironment) {
+        self.environment = environment
         checkExistingAuth()
     }
     
@@ -125,8 +126,11 @@ class AuthViewModel: ObservableObject {
     }
     
     private func syncWithCloudKit() {
-        // CloudKit sync logic would go here
-        // This would involve saving user data to CloudKit private database
+        // Use the environment's cloudKitService for sync operations
+        if let user = currentUser {
+            // The actual sync implementation would go here
+            // environment.cloudKitService.syncUserProfile(user)
+        }
     }
     
     var isAuthenticated: Bool {

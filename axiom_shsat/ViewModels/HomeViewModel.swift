@@ -11,15 +11,17 @@ class HomeViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private let modelContext: ModelContext
+    private let environment: AppEnvironment
+    private var modelContext: ModelContext { environment.modelContext }
     private let progressViewModel: ProgressViewModel
-    private let questionService: QuestionService
+    private var questionService: QuestionService { environment.questionService }
     private var cancellables = Set<AnyCancellable>()
+    private let userId: UUID
     
-    init(modelContext: ModelContext, userId: UUID) {
-        self.modelContext = modelContext
-        self.progressViewModel = ProgressViewModel(modelContext: modelContext, userId: userId)
-        self.questionService = QuestionService(modelContext: modelContext)
+    init(environment: AppEnvironment, userId: UUID) {
+        self.environment = environment
+        self.userId = userId
+        self.progressViewModel = ProgressViewModel(environment: environment, userId: userId)
     }
     
     func loadDashboard() async {
@@ -54,7 +56,7 @@ class HomeViewModel: ObservableObject {
         if let existingChallenge = UserDefaults.standard.string(forKey: getDailyChallengeKey()),
            let questionId = UUID(uuidString: existingChallenge) {
             // Fetch the existing challenge
-            let descriptor = FetchDescriptor<Question>(
+            var descriptor = FetchDescriptor<Question>(
                 predicate: #Predicate<Question> { $0.id == questionId }
             )
             
@@ -104,7 +106,7 @@ class HomeViewModel: ObservableObject {
         do {
             // Get the user
             let userDescriptor = FetchDescriptor<UserProfile>(
-                predicate: #Predicate<UserProfile> { $0.id == progressViewModel.userId }
+                predicate: #Predicate<UserProfile> { $0.id == self.userId }
             )
             
             let users = try modelContext.fetch(userDescriptor)

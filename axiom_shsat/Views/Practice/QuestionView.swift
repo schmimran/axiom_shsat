@@ -366,13 +366,7 @@ struct QuestionView: View {
 }
 
 #Preview {
-    let modelContainer = try! ModelContainer(for: [
-        Question.self,
-        UserProfile.self,
-        TestSession.self,
-        QuestionResponse.self,
-        TopicProgress.self
-    ])
+    let environment = AppEnvironment.shared
     
     let sampleQuestion = Question(
         text: "If $x + 3 = 7$, what is the value of $x$?",
@@ -386,10 +380,11 @@ struct QuestionView: View {
         difficulty: "easy"
     )
     
-    let authViewModel = AuthViewModel(modelContext: modelContainer.mainContext)
+    let authViewModel = AuthViewModel(environment: environment)
     
-    return NavigationView {
+    NavigationView {
         QuestionView(question: sampleQuestion)
             .environmentObject(authViewModel)
+            .modelContainer(environment.modelContainer)
     }
 }

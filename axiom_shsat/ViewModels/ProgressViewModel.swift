@@ -10,12 +10,13 @@ class ProgressViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private let modelContext: ModelContext
-    private let userId: UUID
+    private let environment: AppEnvironment
+    private var modelContext: ModelContext { environment.modelContext }
+    let userId: UUID
     private var cancellables = Set<AnyCancellable>()
     
-    init(modelContext: ModelContext, userId: UUID) {
-        self.modelContext = modelContext
+    init(environment: AppEnvironment, userId: UUID) {
+        self.environment = environment
         self.userId = userId
     }
     
@@ -25,7 +26,7 @@ class ProgressViewModel: ObservableObject {
         
         do {
             // Load topic progress
-            let topicDescriptor = FetchDescriptor<TopicProgress>(
+            var topicDescriptor = FetchDescriptor<TopicProgress>(
                 predicate: #Predicate<TopicProgress> { $0.user?.id == userId }
             )
             topicDescriptor.sortBy = [SortDescriptor(\.proficiencyPercentage, order: .forward)]
@@ -33,7 +34,7 @@ class ProgressViewModel: ObservableObject {
             topicProgress = try modelContext.fetch(topicDescriptor)
             
             // Load recent sessions
-            let sessionDescriptor = FetchDescriptor<TestSession>(
+            var sessionDescriptor = FetchDescriptor<TestSession>(
                 predicate: #Predicate<TestSession> { $0.user?.id == userId }
             )
             sessionDescriptor.sortBy = [SortDescriptor(\.startTime, order: .reverse)]
@@ -65,7 +66,7 @@ class ProgressViewModel: ObservableObject {
             let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
             
             // Fetch responses for this day
-            let responseDescriptor = FetchDescriptor<QuestionResponse>(
+            var responseDescriptor = FetchDescriptor<QuestionResponse>(
                 predicate: #Predicate<QuestionResponse> {
                     $0.session?.user?.id == userId &&
                     $0.timestamp >= startOfDay &&
@@ -123,7 +124,7 @@ class ProgressViewModel: ObservableObject {
     }
     
     private func getUserProfile() throws -> UserProfile? {
-        let descriptor = FetchDescriptor<UserProfile>(
+        var descriptor = FetchDescriptor<UserProfile>(
             predicate: #Predicate<UserProfile> { $0.id == userId }
         )
         

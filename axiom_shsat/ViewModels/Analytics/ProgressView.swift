@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 
-struct ProgressView: View {
+struct UserProgressView: View {
     @StateObject private var viewModel: ProgressViewModel
     @State private var selectedTimeRange: TimeRange = .month
     @State private var selectedTab = 0
@@ -15,9 +15,9 @@ struct ProgressView: View {
         var id: String { self.rawValue }
     }
     
-    init(userId: UUID) {
+    init(userId: UUID, environment: AppEnvironment = .shared) {
         _viewModel = StateObject(wrappedValue: ProgressViewModel(
-            modelContext: ModelContainer.shared.mainContext,
+            environment: environment,
             userId: userId
         ))
     }
@@ -714,6 +714,7 @@ struct LegendItem: View {
 
 #Preview {
     NavigationView {
-        ProgressView(userId: UUID())
+        UserProgressView(userId: UUID())
+            .environmentObject(AppEnvironment.shared)
     }
 }

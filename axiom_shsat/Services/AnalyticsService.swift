@@ -185,9 +185,8 @@ class AnalyticsService {
         var dailyResponses: [Date: [QuestionResponse]] = [:]
         
         for response in responses {
-            guard let timestamp = response.timestamp else { continue }
-            
-            let day = calendar.startOfDay(for: timestamp)
+            // Response.timestamp is non-optional in the model
+            let day = calendar.startOfDay(for: response.timestamp)
             
             if dailyResponses[day] == nil {
                 dailyResponses[day] = []

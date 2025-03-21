@@ -284,7 +284,8 @@ class MathFormatter {
                     
                     // Replace with AsciiMath fraction
                     let asciiMathFraction = "(" + numerator + ")/(" + denominator + ")"
-                    result = result.replacingOccurrences(of: match.string, with: asciiMathFraction, options: [], range: nsRange)
+                    let matchString = String(result[range])
+                    result = result.replacingOccurrences(of: matchString, with: asciiMathFraction)
                 }
             }
         }
@@ -340,7 +341,8 @@ class MathFormatter {
                     
                     // Replace with plain text fraction
                     let plainTextFraction = "(" + numerator + ")/(" + denominator + ")"
-                    result = result.replacingOccurrences(of: match.string, with: plainTextFraction, options: [], range: nsRange)
+                    let matchString = String(result[range])
+                    result = result.replacingOccurrences(of: matchString, with: plainTextFraction)
                 }
             }
         }

@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import Charts
+import Foundation
 
 struct TopicBreakdownView: View {
     let userId: UUID
@@ -192,7 +193,7 @@ struct TopicDetailCard: View {
                 
                 ProficiencyBadge(
                     percentage: topic.proficiencyPercentage,
-                    level: topic.proficiencyLevel
+                    showPercentage: false
                 )
             }
             
@@ -295,54 +296,14 @@ struct TopicDetailCard: View {
 
 // Supporting views
 
-struct ProficiencyBadge: View {
-    let percentage: Double
-    let level: String
-    
-    var body: some View {
-        Text(level)
-            .font(.caption)
-            .fontWeight(.semibold)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(badgeColor.opacity(0.15))
-            .foregroundColor(badgeColor)
-            .cornerRadius(15)
-    }
-    
-    private var badgeColor: Color {
-        switch percentage {
-        case 0..<30:
-            return .red
-        case 30..<60:
-            return .orange
-        case 60..<80:
-            return .blue
-        default:
-            return .green
-        }
-    }
-}
+// Using the shared ProficiencyBadge from UIComponents.swift
 
-struct StatItem: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        VStack(spacing: 5) {
-            Text(value)
-                .font(.headline)
-            
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-    }
-}
+// Using the shared StatItem from UIComponents.swift
 
 #Preview {
-    NavigationView {
+    let environment = AppEnvironment.shared
+    return NavigationView {
         TopicBreakdownView(userId: UUID())
+            .modelContainer(environment.modelContainer)
     }
 }

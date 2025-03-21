@@ -4,29 +4,32 @@ import SwiftData
 @main
 struct SHSAT_PrepperApp: App {
     @StateObject private var authViewModel: AuthViewModel
+    private let environment = AppEnvironment.shared
     
     init() {
-        let container = ModelContainer.shared
-        _authViewModel = StateObject(wrappedValue: AuthViewModel(modelContext: container.mainContext))
+        _authViewModel = StateObject(wrappedValue: AuthViewModel(environment: AppEnvironment.shared))
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authViewModel)
+                .environmentObject(environment)
         }
-        .modelContainer(ModelContainer.shared)
+        .modelContainer(environment.modelContainer)
     }
 }
 
 struct ContentView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var environment: AppEnvironment
     
     var body: some View {
         Group {
             if authViewModel.isAuthenticated {
                 if let userId = authViewModel.currentUser?.id {
-                    HomeView(modelContext: ModelContainer.shared.mainContext, userId: userId)
+                    HomeView(userId: userId)
+                        .environmentObject(environment)
                 } else {
                     // Fallback if user ID is missing but authenticated state is true
                     Text("Error loading user profile")
@@ -47,7 +50,7 @@ struct ContentView: View {
     }
     
     private func loadInitialQuestions() async {
-        let questionService = QuestionService(modelContext: ModelContainer.shared.mainContext)
+        let questionService = environment.questionService
         
         do {
             // Import questions from the CSV file in the bundle
@@ -61,24 +64,4 @@ struct ContentView: View {
             print("Error loading initial questions: \(error)")
         }
     }
-}
-
-// Shared ModelContainer
-extension ModelContainer {
-    static var shared: ModelContainer = {
-        let schema = Schema([
-            UserProfile.self,
-            Question.self,
-            TestSession.self,
-            QuestionResponse.self,
-            TopicProgress.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
 }

@@ -226,7 +226,7 @@ extension Date {
     var datesOfWeek: [Date] {
         let calendar = Calendar.current
         let dayOfWeek = calendar.component(.weekday, from: self)
-        let weekdayOrdinal = calendar.component(.weekdayOrdinal, from: self)
+        _ = calendar.component(.weekdayOrdinal, from: self)
         let firstDate = calendar.date(byAdding: .day, value: -(dayOfWeek - 1), to: self) ?? self
         
         var dates: [Date] = []
@@ -242,11 +242,11 @@ extension Date {
     /// Get the dates of the current month
     var datesOfMonth: [Date] {
         let calendar = Calendar.current
-        let range = calendar.range(of: .day, in: .month, for: self) ?? 1...30
+        let range = calendar.range(of: .day, in: .month, for: self) ?? 1..<31
         let firstDate = startOfMonth
         
         var dates: [Date] = []
-        for i in range.lowerBound...range.upperBound {
+        for i in range {
             if let date = calendar.date(byAdding: .day, value: i - 1, to: firstDate) {
                 dates.append(date)
             }

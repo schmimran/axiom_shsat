@@ -432,25 +432,25 @@ struct SubscriptionView: View {
                     
                     // Feature list
                     VStack(alignment: .leading, spacing: 15) {
-                        FeatureRow(
+                        SubscriptionFeatureRow(
                             icon: "infinity",
                             title: "Unlimited Practice Tests",
                             description: "Access all practice tests with no limits"
                         )
                         
-                        FeatureRow(
+                        SubscriptionFeatureRow(
                             icon: "bell",
                             title: "Advanced Analytics",
                             description: "Deep insights into your performance"
                         )
                         
-                        FeatureRow(
+                        SubscriptionFeatureRow(
                             icon: "icloud",
                             title: "Cloud Sync",
                             description: "Sync your progress across all your devices"
                         )
                         
-                        FeatureRow(
+                        SubscriptionFeatureRow(
                             icon: "doc.text",
                             title: "Detailed Explanations",
                             description: "Get step-by-step explanations for all questions"
@@ -517,7 +517,7 @@ struct SubscriptionView: View {
     }
 }
 
-struct FeatureRow: View {
+struct SubscriptionFeatureRow: View {
     let icon: String
     let title: String
     let description: String
@@ -561,9 +561,10 @@ struct RoundedCorner: Shape {
 #Preview {
     NavigationView {
         ProfileView(viewModel: ProfileViewModel(
-            modelContext: ModelContainer.shared.mainContext,
+            environment: AppEnvironment.shared,
             userId: UUID()
         ))
-        .environmentObject(AuthViewModel(modelContext: ModelContainer.shared.mainContext))
+        .environmentObject(AuthViewModel(environment: AppEnvironment.shared))
+        .modelContainer(AppEnvironment.shared.modelContainer)
     }
 }

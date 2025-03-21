@@ -7,6 +7,9 @@
 
 
 import SwiftUI
+import SwiftData
+// Ensure we have access to shared components
+import Foundation
 
 struct RecommendationRow: View {
     let topic: TopicProgress
@@ -19,7 +22,7 @@ struct RecommendationRow: View {
                     .font(.headline)
                 
                 HStack(spacing: 10) {
-                    ProficiencyBadge(proficiency: Int(topic.proficiencyPercentage))
+                    ProficiencyBadge(percentage: topic.proficiencyPercentage)
                     
                     Text("Last practiced: \(topic.lastPracticed, style: .relative)")
                         .font(.caption)
@@ -69,76 +72,42 @@ struct RecommendationRow: View {
     }
 }
 
-struct ProficiencyBadge: View {
-    let proficiency: Int
-    
-    var body: some View {
-        Text("\(proficiency)%")
-            .font(.caption)
-            .fontWeight(.semibold)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(
-                Capsule()
-                    .fill(badgeColor)
-            )
-            .foregroundColor(proficiency > 50 ? .white : .primary)
-    }
-    
-    private var badgeColor: Color {
-        switch proficiency {
-        case 0..<30:
-            return .red.opacity(0.8)
-        case 30..<60:
-            return .orange.opacity(0.8)
-        case 60..<80:
-            return .blue.opacity(0.8)
-        default:
-            return .green.opacity(0.8)
-        }
-    }
-}
+// Using the shared ProficiencyBadge from UIComponents.swift
 
 #Preview {
-    let dummyTopic = TopicProgress(
-        id: UUID(),
-        topic: "Algebra"
-    )
-    dummyTopic.questionsAttempted = 25
-    dummyTopic.correctAnswers = 15
-    dummyTopic.lastPracticed = Date().addingTimeInterval(-86400)
+    let sampleTopics = PreviewSampleData.createSampleTopics()
     
-    return VStack(spacing: 16) {
-        // Low proficiency
-        let lowTopic = TopicProgress(id: UUID(), topic: "Geometry")
-        lowTopic.questionsAttempted = 10
-        lowTopic.correctAnswers = 2
-        lowTopic.lastPracticed = Date().addingTimeInterval(-86400 * 7)
-        
-        RecommendationRow(topic: lowTopic) {
-            print("Practice geometry")
-        }
-        
-        // Medium proficiency
-        let medTopic = TopicProgress(id: UUID(), topic: "algebra")
-        medTopic.questionsAttempted = 20
-        medTopic.correctAnswers = 10
-        medTopic.lastPracticed = Date().addingTimeInterval(-86400 * 2)
-        
-        RecommendationRow(topic: medTopic) {
-            print("Practice algebra")
-        }
-        
-        // High proficiency
-        let highTopic = TopicProgress(id: UUID(), topic: "probability")
-        highTopic.questionsAttempted = 30
-        highTopic.correctAnswers = 27
-        highTopic.lastPracticed = Date()
-        
-        RecommendationRow(topic: highTopic) {
-            print("Practice probability")
+    Group {
+        ScrollView {
+            VStack(spacing: 16) {
+                ForEach(sampleTopics) { topic in
+                    RecommendationRow(topic: topic) {
+                        print("Practice \(topic.topic)")
+                    }
+                }
+            }
+            .padding()
+            .background(Color(.systemBackground))
         }
     }
-    .padding()
-    .background(Color(.systemBackground))
+    .modelContainer(AppEnvironment.shared.modelContainer)
+}
+
+// Helper for creating preview data
+fileprivate enum PreviewSampleData {
+    static func createSampleTopics() -> [TopicProgress] {
+        let topics = [
+            (name: "Geometry", attempted: 10, correct: 2, daysAgo: 7),
+            (name: "Algebra", attempted: 20, correct: 10, daysAgo: 2),
+            (name: "Probability", attempted: 30, correct: 27, daysAgo: 0)
+        ]
+        
+        return topics.map { data in
+            let topic = TopicProgress(id: UUID(), topic: data.name)
+            topic.questionsAttempted = data.attempted
+            topic.correctAnswers = data.correct
+            topic.lastPracticed = Date().addingTimeInterval(-86400 * Double(data.daysAgo))
+            return topic
+        }
+    }
 }

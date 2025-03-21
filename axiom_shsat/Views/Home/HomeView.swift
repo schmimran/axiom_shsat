@@ -11,12 +11,13 @@ import SwiftData
 
 struct HomeView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var environment: AppEnvironment
     @StateObject private var viewModel: HomeViewModel
     @State private var selectedTab = 0
     @State private var showingTestConfig = false
     
-    init(modelContext: ModelContext, userId: UUID) {
-        _viewModel = StateObject(wrappedValue: HomeViewModel(modelContext: modelContext, userId: userId))
+    init(userId: UUID, environment: AppEnvironment = .shared) {
+        _viewModel = StateObject(wrappedValue: HomeViewModel(environment: environment, userId: userId))
     }
     
     var body: some View {
@@ -97,21 +98,21 @@ struct HomeView: View {
     
     private var statsView: some View {
         HStack(spacing: 15) {
-            StatCard(
+            UIComponents.StatCard(
                 title: "Daily Streak",
                 value: "\(viewModel.dailyStreak)",
                 icon: "flame.fill",
                 color: .orange
             )
             
-            StatCard(
+            UIComponents.StatCard(
                 title: "Today's Questions",
                 value: "\(viewModel.questionsAnsweredToday)",
                 icon: "checkmark.circle.fill",
                 color: .green
             )
             
-            StatCard(
+            UIComponents.StatCard(
                 title: "Overall Score",
                 value: "\(Int(viewModel.overallPerformance))%",
                 icon: "chart.bar.fill",
@@ -182,7 +183,8 @@ struct HomeView: View {
                         destination: TestSessionView(
                             topic: topic.topic,
                             difficulty: nil,
-                            questionCount: 10
+                            questionCount: 10,
+                            environment: environment
                         )
                     ) {
                         HStack {
@@ -293,7 +295,7 @@ struct HomeView: View {
                             }
                         }
                         
-                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "medium", questionCount: 25)) {
+                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "medium", questionCount: 25, environment: environment)) {
                             HStack {
                                 Image(systemName: "timer")
                                     .frame(width: 30, height: 30)
@@ -304,7 +306,7 @@ struct HomeView: View {
                     }
                     
                     Section(header: Text("Quick Practice")) {
-                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "easy", questionCount: 5)) {
+                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "easy", questionCount: 5, environment: environment)) {
                             HStack {
                                 Image(systemName: "1.circle")
                                     .frame(width: 30, height: 30)
@@ -313,7 +315,7 @@ struct HomeView: View {
                             }
                         }
                         
-                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "medium", questionCount: 10)) {
+                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "medium", questionCount: 10, environment: environment)) {
                             HStack {
                                 Image(systemName: "2.circle")
                                     .frame(width: 30, height: 30)
@@ -322,7 +324,7 @@ struct HomeView: View {
                             }
                         }
                         
-                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "hard", questionCount: 5)) {
+                        NavigationLink(destination: TestSessionView(topic: nil, difficulty: "hard", questionCount: 5, environment: environment)) {
                             HStack {
                                 Image(systemName: "3.circle")
                                     .frame(width: 30, height: 30)
@@ -396,33 +398,7 @@ struct HomeView: View {
     }
 }
 
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 5) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(value)
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 15)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
-}
+// Moved to SharedComponents.swift as UIComponents.StatCard
 
 struct TestConfigView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -482,17 +458,10 @@ struct TestConfigView: View {
 }
 
 #Preview {
-    let modelContainer = try! ModelContainer(for: [
-        UserProfile.self,
-        Question.self,
-        TestSession.self,
-        QuestionResponse.self,
-        TopicProgress.self
-    ])
-    
-    let authViewModel = AuthViewModel(modelContext: modelContainer.mainContext)
+    let environment = AppEnvironment.shared
+    let authViewModel = AuthViewModel(environment: environment)
     let dummyUserID = UUID()
     
-    return HomeView(modelContext: modelContainer.mainContext, userId: dummyUserID)
+    HomeView(userId: dummyUserID, environment: environment)
         .environmentObject(authViewModel)
 }

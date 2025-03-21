@@ -229,24 +229,15 @@ struct DashboardView: View {
     }
 }
 
-struct DashboardView_Previews: PreviewProvider {
-    static var previews: some View {
-        let modelContainer = try! ModelContainer(for: [
-            UserProfile.self,
-            Question.self,
-            TestSession.self,
-            QuestionResponse.self,
-            TopicProgress.self
-        ])
-        
-        let dummyUserID = UUID()
-        
-        return NavigationView {
-            DashboardView(viewModel: HomeViewModel(
-                modelContext: modelContainer.mainContext,
-                userId: dummyUserID
-            ))
-            .navigationTitle("Dashboard")
-        }
+#Preview {
+    let environment = AppEnvironment.shared
+    let dummyUserID = UUID()
+    
+    NavigationView {
+        DashboardView(viewModel: HomeViewModel(
+            environment: environment,
+            userId: dummyUserID
+        ))
+        .navigationTitle("Dashboard")
     }
 }

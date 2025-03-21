@@ -17,10 +17,10 @@ final class QuestionResponse {
     var timestamp: Date
     var responseTime: TimeInterval
     
-    @Relationship(deleteRule: .nullify, inverse: \Question.responses)
+    @Relationship(deleteRule: .nullify)
     var question: Question?
     
-    @Relationship(deleteRule: .nullify, inverse: \TestSession.responses)
+    @Relationship(deleteRule: .nullify)
     var session: TestSession?
     
     init(

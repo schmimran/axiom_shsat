@@ -17,7 +17,7 @@ final class TopicProgress {
     var correctAnswers: Int
     var lastPracticed: Date
     
-    @Relationship(deleteRule: .nullify, inverse: \UserProfile.topicProgress)
+    @Relationship(deleteRule: .nullify)
     var user: UserProfile?
     
     init(

@@ -16,10 +16,11 @@ class ProfileViewModel: ObservableObject {
     @Published var isProUser: Bool = false
     @Published var preferences: UserPreferences
     
-    private let modelContext: ModelContext
+    private let environment: AppEnvironment
+    private var modelContext: ModelContext { environment.modelContext }
     private let userId: UUID
     private var cancellables = Set<AnyCancellable>()
-    private let cloudKitService: CloudKitService
+    private var cloudKitService: CloudKitService { environment.cloudKitService }
     
     struct UserPreferences: Codable, Equatable {
         var isDarkModeEnabled: Bool
@@ -43,11 +44,10 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
-    init(modelContext: ModelContext, userId: UUID) {
-        self.modelContext = modelContext
+    init(environment: AppEnvironment, userId: UUID) {
+        self.environment = environment
         self.userId = userId
         self.preferences = UserPreferences()
-        self.cloudKitService = CloudKitService()
         
         loadUserData()
         loadUserPreferences()
